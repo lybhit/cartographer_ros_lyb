@@ -1,0 +1,34 @@
+<launch>
+  <param name="/use_time" value="true" />
+  <arg name="no_rviz" default="false"/>
+
+  <!-- param name="robot_description"
+    textfile="$(find configure)/urdf/e100_3d.urdf" /-->
+
+  <!-- node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" / -->
+  <!-- <node name="cartographer_node" pkg="cartographer_ros" type="cartographer_node" args="
+  -configuration_directory $(find cartographer_ros)/configuration_files
+  -configuration_basename 2d_structured.lua"
+  output="screen">
+  <remap from="scan" to="scan"/>
+  <remap from="imu" to="imu_data"/>
+  <remap from="odom" to="odom"/>
+  </node> -->
+
+  <node name="cartographer_occupancy_grid_node" pkg="cartographer_ros" type="cartographer_occupancy_grid_node" args="-resolution 0.05" />
+
+  <node name="cartographer_offline_node" pkg="cartographer_ros"
+      required="$(arg no_rviz)"
+      type="cartographer_offline_node" args="
+          -configuration_directory $(find cartographer_ros)/configuration_files
+          -configuration_basenames 2d_structured.lua
+          -urdf_filenames $(find cartographer_ros)/urdf/e100_3d_nanjing.urdf
+          -bag_filenames $(arg bag_filenames)"
+      output="screen">
+    <remap from="scan" to="scan"/>
+    <remap from="imu" to="imu_data"/>
+    <remap from="odom" to="odom"/>
+  </node>
+
+  <node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find cartographer_ros)/configuration_files/test_2d.rviz" />
+</launch>
